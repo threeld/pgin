@@ -1,6 +1,15 @@
 #include "server.h"
+#include <signal.h>
+
+volatile sig_atomic_t kr = 1;
+void sigint_handler(int sig) {
+  if (kr)
+    kr = 0;
+}
 
 int main() {
+  signal(SIGINT, sigint_handler);
+
   // 1. Create a socket
   int server_socket = socket(AF_INET, SOCK_STREAM, 0);
   if (server_socket == -1) {
@@ -27,7 +36,7 @@ int main() {
   listen(server_socket, 3); // Queue up to 3 connections
   printf("Waiting for incoming connections...\n");
 
-  while (1) {
+  while (kr) {
     // 5. Accept an incoming connection
     struct sockaddr_in client;
     int client_len = sizeof(client);
@@ -54,7 +63,6 @@ int main() {
       send(client_socket, response, strlen(response), 0);
       printf("Response sent\n");
     }
-    // 8. Close sockets
     close(client_socket);
   }
   close(server_socket);
