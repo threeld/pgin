@@ -4,25 +4,40 @@
 // `volatile`: ensures compiler reads the variable each time from memory,
 //             'cause signal handler might change the value of the variable.
 // `sig_atomic_t` guarantees that setting the flag is an atomic operation.
-volatile sig_atomic_t kr = 1; // kr: keep running
+volatile sig_atomic_t keep_running = 1; 
 
 // signal handler, for SIGINT (Ctrl+C).
 // sets the flag to 0 to gracefully stop the server.
-void sigint_handler(int sig) {
+void sigint_handler(int sig)
+{
   (void)sig; // suppress unused parameter warning
-  kr = 0;
+  keep_running = 0;
 }
 
-int main() {
+int main()
+{
   signal(SIGINT, sigint_handler);
 
-  // create a socket
+  // Create a socket
   int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-  if (server_socket == -1) {
-    perror("Could not create socket\n");
-    return 1;
+    if (server_socket == -1) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+    printf("Socket created successfully\n");
+
+  // Allow reuse of the same port (fixes “Address already in use”)
+  int opt = 1; // Option value is 1 to enable the option 
+  if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) 
+  // SOL_SOCKET enables the socket level API.
+  // SO_REUSEADDR is the option-name which allows to reuse the port immediately instead of waiting it to be free.
+  // &opt -> address to option value (1 -> On, 0 -> Off)
+  // sizeof(opt) -> converts size of opt value in bytes
+  {
+    perror("Reusing Address failed");
+    close(server_socket);
+    exit(EXIT_FAILURE);
   }
-  printf("Socket created\n");
 
   // prepare the sockaddr_in structure
   struct sockaddr_in server;
@@ -31,10 +46,11 @@ int main() {
   server.sin_port = htons(8080);       // Port 8080
 
   // bind the socket to the address and port
-  if (bind(server_socket, (struct sockaddr *)&server, sizeof(server)) < 0) {
+  if (bind(server_socket, (struct sockaddr *)&server, sizeof(server)) < 0)
+  {
     perror("Bind failed\n");
     close(server_socket);
-    return 1;
+    exit(EXIT_FAILURE);
   }
   printf("Bind done on port 8080\n");
 
@@ -42,8 +58,9 @@ int main() {
   listen(server_socket, 3); // Queue up to 3 connections
   printf("Waiting for incoming connections...\n");
 
-  while (kr) {
-    // 5. Accept an incoming connection
+  while (keep_running)
+  {
+    // Accept an incoming connection
     struct sockaddr_in client;
     int client_len = sizeof(client);
     // issue is here, w/ accept function.
@@ -51,15 +68,16 @@ int main() {
     // the while condition is only checked after the accept is done.
     // thus, the while codition is only checked after a new connection is made.
     //
-    // even if the kr=0, the while loop will exit only after the accept is done.
+    // even if the keep_running=0, the while loop will exit only after the accept is done.
     // and the accept will be done only after it receives a new connection.
     int client_socket = accept(server_socket, (struct sockaddr *)&client,
                                (socklen_t *)&client_len);
 
-    if (client_socket < 0) {
+    if (client_socket < 0)
+    {
       perror("Accept failed\n");
       close(client_socket);
-      return 1;
+      exit(EXIT_FAILURE);
     }
     printf("Connection accepted\n");
 
@@ -67,7 +85,8 @@ int main() {
     char client_message[2000];
     size_t read_size = recv(client_socket, client_message, 2000, 0);
 
-    if (read_size > 0) {
+    if (read_size > 0)
+    {
       printf("Client sent: %s\n", client_message);
 
       // sends response to client
@@ -80,5 +99,5 @@ int main() {
   }
   close(server_socket);
 
-  return 0;
+  exit(EXIT_SUCCESS);
 }
