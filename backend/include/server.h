@@ -7,5 +7,6 @@
 #include <string.h>     // For memset, strlen
 #include <sys/socket.h> // For socket functions
 #include <unistd.h>     // For close()
+#include <stdlib.h>     // For exit()
 
 #endif /* SERVER_H */
