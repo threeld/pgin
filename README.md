@@ -58,10 +58,6 @@ This will:
 2. Build the project again.
 3. Run the executable (`pgin`) located in `backend/build`:
 
-```bash
-./backend/build/pgin
-```
-
 ### Clean
 
 ```bash
