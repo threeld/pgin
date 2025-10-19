@@ -12,28 +12,28 @@ A work-in-progress **terminal-based chat application** in C. The server skeleton
 
 ## Current Status
 
-- [x] TCP server skeleton in C  
-- [x] Graceful shutdown with Ctrl+C  
-- [ ] Multi-client support  
-- [ ] Client application (Bubble Tea TUI)  
-- [ ] Chat protocol and message broadcasting  
-- [ ] TUI client interface  
+- [x] TCP server skeleton in C
+- [x] Graceful shutdown with Ctrl+C
+- [ ] Multi-client support
+- [ ] Client application (Bubble Tea TUI)
+- [ ] Chat protocol and message broadcasting
+- [ ] TUI client interface
 
 ## Prerequisites
 
-- GCC or Clang  
-- **Meson** and **Ninja** installed  
-- Linux/macOS (POSIX-compliant systems recommended)  
-- Go (for TUI client with Bubble Tea)  
+- GCC or Clang
+- **Meson** and **Ninja** installed
+- Linux/macOS (POSIX-compliant systems recommended)
+- Go (for TUI client with Bubble Tea)
 
 ## Build & Run
 
 After cloning the repository:
 
 ```bash
-git clone https://github.com/yourusername/tui-chat-app.git
-cd tui-chat-app
-````
+git clone https://github.com/shandilyaaryan/pgin.git
+cd pgin
+```
 
 ### Build
 
@@ -79,5 +79,5 @@ Removes the build directory and Meson cache for a fresh build.
 
 ## Notes
 
-* This project is currently a **work-in-progress**.
-* Contributions are welcome!
+- This project is currently a **work-in-progress**.
+- Contributions are welcome!

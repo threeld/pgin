@@ -1,4 +1,6 @@
 #include "server.h"
+#include "colors.h"
+#include "errno.h"
 
 // Global flag to control the main server loop.
 // `volatile`: ensures compiler reads the variable each time from memory,
@@ -12,6 +14,7 @@ void sigint_handler(int sig)
 {
   (void)sig; // suppress unused parameter warning
   keep_running = 0;
+  printf(BLUE"Shutting down the server...\n"RESET);
 }
 
 int main()
@@ -21,10 +24,10 @@ int main()
   // Create a socket
   int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
-        perror("Socket creation failed");
+        perror(RED"Socket creation failed"RESET);
         exit(EXIT_FAILURE);
     }
-    printf("Socket created successfully\n");
+    printf(GREEN "Socket created successfully\n" RESET);
 
   // Allow reuse of the same port (fixes “Address already in use”)
   int opt = 1; // Option value is 1 to enable the option 
@@ -34,7 +37,7 @@ int main()
   // &opt -> address to option value (1 -> On, 0 -> Off)
   // sizeof(opt) -> converts size of opt value in bytes
   {
-    perror("Reusing Address failed");
+    perror(RED"Reusing Address failed"RED);
     close(server_socket);
     exit(EXIT_FAILURE);
   }
@@ -48,15 +51,16 @@ int main()
   // bind the socket to the address and port
   if (bind(server_socket, (struct sockaddr *)&server, sizeof(server)) < 0)
   {
-    perror("Bind failed\n");
+    perror(RED"Bind failed\n"RESET);
     close(server_socket);
     exit(EXIT_FAILURE);
   }
-  printf("Bind done on port 8080\n");
+  printf(GREEN "Bind done on port: ");
+  printf(BOLD UNDERLINE "0.0.0.0:8080\n" RESET);
 
   // listens for incoming connections
   listen(server_socket, 3); // Queue up to 3 connections
-  printf("Waiting for incoming connections...\n");
+  printf(GREEN"Waiting for incoming connections...\n\n"RESET);
 
   while (keep_running)
   {
@@ -75,11 +79,18 @@ int main()
 
     if (client_socket < 0)
     {
-      perror("Accept failed\n");
-      close(client_socket);
-      exit(EXIT_FAILURE);
+       if (errno == EINTR) {            // Interrupted by Ctrl+C
+        if (!keep_running)           // Signal handler asked us to quit
+            break;                   // Break out of loop cleanly
+        else
+            continue;                // Ignore other spurious signals
     }
-    printf("Connection accepted\n");
+
+    perror("Accept failed");         // Real error — not from a signal
+    break;
+    }
+    
+    printf(CYAN"Connection accepted!\n" RESET);
 
     // receive data from client
     char client_message[2000];
@@ -93,11 +104,11 @@ int main()
       char *response = "HTTP/1.1 200 OK\r\nContent-Type: "
                        "text/html\r\n\r\n<h1>Welcome to pgin!</h1>";
       send(client_socket, response, strlen(response), 0);
-      printf("Response sent\n");
+      printf(BOLD"Response sent\n\n" RESET);
     }
     close(client_socket);
   }
   close(server_socket);
 
-  exit(EXIT_SUCCESS);
+  return 0;
 }
