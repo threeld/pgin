@@ -1,5 +1,6 @@
 #include "server.h"
 #include "colors.h"
+#include "errno.h"
 
 // Global flag to control the main server loop.
 // `volatile`: ensures compiler reads the variable each time from memory,
@@ -13,7 +14,7 @@ void sigint_handler(int sig)
 {
   (void)sig; // suppress unused parameter warning
   keep_running = 0;
-  printf("recieved signal");
+  printf(BLUE"Shutting down the server...\n"RESET);
 }
 
 int main()
@@ -78,10 +79,17 @@ int main()
 
     if (client_socket < 0)
     {
-      perror(RED"Accept failed\n"RESET);
-      close(client_socket);
-      exit(EXIT_FAILURE);
+       if (errno == EINTR) {            // Interrupted by Ctrl+C
+        if (!keep_running)           // Signal handler asked us to quit
+            break;                   // Break out of loop cleanly
+        else
+            continue;                // Ignore other spurious signals
     }
+
+    perror("Accept failed");         // Real error — not from a signal
+    break;
+    }
+    
     printf(CYAN"Connection accepted!\n" RESET);
 
     // receive data from client
