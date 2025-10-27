@@ -14,9 +14,13 @@ type errMsg struct{ err error }
 type model struct {
 	message string
 	err     error
+	width   int
+	height  int
 }
 
-var help_style = lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render
+var helpStyle = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("86")).
+	Render
 
 func (m model) Init() tea.Cmd {
 	return func() tea.Msg {
@@ -30,6 +34,9 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
 	case serverMsg:
 		m.message = msg.text
 	case errMsg:
@@ -39,26 +46,35 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "q" {
 			return m, tea.Quit
 		}
-		// switch msg.Type {
-		// case tea.KeyCtrlC, tea.KeyEsc:
-		// 	return m, tea.Quit
-		// }
 	}
 	return m, nil
 }
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("63"))
-
 func (m model) View() string {
 	if m.err != nil {
 		return fmt.Sprintf("Error: %v\n", m.err)
-	} else {
-		return docStyle.Render(fmt.Sprintf("Message: %s\n %s\n", m.message, m.help_view()))
 	}
+
+	// style for the message box
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#808080")).
+		Width(m.width-3).
+		Height(m.height-5).
+		Padding(0, 2)
+
+	// message from the server
+	messageContent := fmt.Sprintf("Message: %s", m.message)
+
+	// render the message box
+	messageBox := boxStyle.Render(messageContent)
+
+	// join vertically the message box and the help view
+	return lipgloss.JoinVertical(lipgloss.Left, messageBox, m.help_view())
 }
 
 func (m model) help_view() string {
-	return help_style("\n  ↑/↓: Navigate • q: Quit\n")
+	return helpStyle("\n  ↑/↓: Navigate • q: Quit\n")
 }
 
 func NewModel() model { return model{} }
