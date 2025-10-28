@@ -2,8 +2,9 @@
 #define DB_H
 
 #include <stdio.h> // For printf and perror
-#include <stdlib.h> // 
+#include <stdlib.h> 
 #include <sqlite3.h> // For SQLite
+#include <string.h> // For string functions
 
 int db_init(sqlite3 **db); // Initialize the database connection
 int db_create_tables(sqlite3 *db); // For creating tables in the database

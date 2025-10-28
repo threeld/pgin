@@ -1,27 +1,39 @@
 #include "../backend/include/db.h"
 
-int main() {
+int main()
+{
     sqlite3 *db;
-    if (db_init(&db) != SQLITE_OK) {
+    
+    // Initialize database
+    if (db_init(&db) != SQLITE_OK)
+    {
         fprintf(stderr, "Failed to initialize database\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE; // Don't call db_close here, db might not be initialized
     }
-
-    if (db_create_tables(db) != SQLITE_OK) {
+    
+    // Create tables
+    if (db_create_tables(db) != SQLITE_OK)
+    {
         fprintf(stderr, "Failed to create tables\n");
         db_close(db);
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-
-    // Test database functions
-    if (db_insert_message(db, "Aryan", "Welcome to Pgin bitches") != SQLITE_OK) {
+    
+    // Test database functions - insert message
+    if (db_insert_message(db, "Aryan", "Welcome to Pgin Bitches") != SQLITE_OK)
+    {
         fprintf(stderr, "Failed to insert test message\n");
     }
-
+    
+    // Retrieve and display messages
     printf("--- Chat History ---\n");
-    db_get_messages(db);
+    if (db_get_messages(db) != SQLITE_OK)
+    {
+        fprintf(stderr, "Failed to retrieve messages\n");
+    }
     printf("--------------------\n");
-
+    
+    // Clean up
     db_close(db);
     return 0;
 }
