@@ -190,6 +190,8 @@ int db_get_messages(sqlite3 *db)
     if (response != SQLITE_DONE)
     {
         fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return response;
     }
 
     sqlite3_finalize(stmt);

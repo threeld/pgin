@@ -220,10 +220,10 @@ printf("--------------------\n");
 ```
 
 **Output Example:**
-```
-[Alice]: Hello, World!
-[Bob]: Hi Alice!
-[Alice]: How are you?
+```text
+[Sunny]: Hi guys!
+[Gaurav]: Hi bro!
+[Nitu]: Hi Sunny!
 ```
 
 ---
