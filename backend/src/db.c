@@ -56,7 +56,7 @@ int db_create_tables(sqlite3 *db)
         "username TEXT NOT NULL,"
         "message TEXT NOT NULL);";
 
-    char *err_msg = NULL;                                 // Creates a err_msg pointer and set it to NULL so that SQL can use it when needed.
+    char *err_msg = NULL;   // Creates a err_msg pointer and set it to NULL so that SQL can use it when needed.
     int response = sqlite3_exec(db, sql, 0, 0, &err_msg); // Execution of sql command with no callbacks being 0 and 0.
     if (response != SQLITE_OK)
     {
@@ -106,10 +106,10 @@ int db_insert_message(sqlite3 *db, const char *username, const char *message)
         return SQLITE_ERROR;
     }
 
-    sqlite3_stmt *stmt;                                                          // stmt stands for statement object which is like a compiled version of your query.
+    sqlite3_stmt *stmt;  // stmt stands for statement object which is like a compiled version of your query.
     const char *sql = "INSERT INTO messages (username, message) VALUES (?, ?);"; // '?' prevents SQL Injection and variable inputs
 
-    // sqlite3_prepare_v2 compiles the SQL statement into a prepared statement object. More effecient for repeated queries and crucial for preventing SQL injection by seperating logic from data.
+    // sqlite3_prepare_v2 compiles the SQL statement into a prepared statement object. More efficient for repeated queries and crucial for preventing SQL injection by separating logic from data.
     int response = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (response != SQLITE_OK)
     {
