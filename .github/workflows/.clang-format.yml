@@ -1,0 +1,36 @@
+name: Auto Format C Code (Google Style)
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # allows the action to push changes back to the PR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed to push changes back
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Apply Google style formatting
+        run: |
+          find . -regex '.*\.\(c\|h\)$' -exec clang-format -i --style=Google {} \;
+
+      - name: Commit formatted code
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "style: auto-format code (Google style)"
+            git push
+          else
+            echo "No formatting needed."
+          fi
