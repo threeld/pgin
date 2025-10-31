@@ -26,7 +26,7 @@ jobs:
       - name: Run clang-format (Google style)
         run: |
           find . -type f \( -name "*.c" -o -name "*.h" \) \
-            -exec clang-format -i --style=Google {} +
+            -exec clang-format -i {} +
 
       - name: Commit and push formatting changes
         run: |
