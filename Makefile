@@ -11,3 +11,6 @@ clean:
 
 run: clean build
 	./backend/build/pgin
+
+ui:
+	cd client && go run cmd/chat/main.go

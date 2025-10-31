@@ -1,13 +1,12 @@
-package main
+package internal
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
-func main() {
+func Msg() (string, error) {
 	url := "http://localhost:8080"
 
 	resp, err := http.Get(url)
@@ -27,5 +26,6 @@ func main() {
 		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	fmt.Printf("Response from %s:\n%s\n", url, string(body))
+	// fmt.Printf("Response from %s:\n%s\n", url, string(body))
+	return string(body), nil
 }
