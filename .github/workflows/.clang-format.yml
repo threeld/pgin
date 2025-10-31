@@ -1,36 +1,36 @@
-name: Auto Format C Code (Google Style)
+name: Auto-format C code
 
 on:
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   format:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # allows the action to push changes back to the PR
+      contents: write    # allow the bot to push commits to the PR branch
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # needed to push changes back
+          ref: ${{ github.head_ref }} # the PR branch
 
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+        run: sudo apt-get install -y clang-format
 
-      - name: Apply Google style formatting
+      - name: Run clang-format (Google style)
         run: |
-          find . -regex '.*\.\(c\|h\)$' -exec clang-format -i --style=Google {} \;
+          find . -iname '*.c' -o -iname '*.h' | xargs clang-format -i --style=Google
 
-      - name: Commit formatted code
+      - name: Commit and push formatting changes
         run: |
-          if [[ `git status --porcelain` ]]; then
+          if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "chore(ci): enforce clang-format compliance (Google style pass)"
+            git commit -m "ci(format): auto-apply clang-format (Google style)"
             git push
           else
-            echo "No formatting needed."
+            echo "No formatting changes needed."
           fi
